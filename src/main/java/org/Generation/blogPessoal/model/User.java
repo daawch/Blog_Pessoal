@@ -18,7 +18,7 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
+
 	@NotNull
 	@Size(min = 2, max = 100)
 	private String nome;
@@ -27,23 +27,31 @@ public class User {
 	@NotNull(message = "O atributo Usuário é Obrigatório!")
 	@Email(message = "O atributo Usuário deve ser um email válido!")
 	private String usuario;
-	
+
 	@Size(min = 0, max = 5000)
 	private String foto;
+	private String postagem;
+
+	public String getPostagem() {
+		return postagem;
+	}
+
+	private String tipo;
 
 	@NotNull
 	@Size(min = 5, max = 100)
 	private String senha;
-	
-	public User (Long id, String nome, String foto, String usuario, String senha) { 
+
+	public User(Long id, String nome, String foto, String usuario, String senha) {
 		this.id = id;
 		this.nome = nome;
 		this.foto = foto;
 		this.usuario = usuario;
 		this.senha = senha;
 	}
-	
-	public User () {}
+
+	public User() {
+	}
 
 	public long getId() {
 		return id;
@@ -85,4 +93,15 @@ public class User {
 		this.foto = foto;
 	}
 
+	public void setPostagem(String postagem) {
+		this.postagem = postagem;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
 }

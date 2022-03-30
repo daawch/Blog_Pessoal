@@ -1,6 +1,5 @@
 package org.Generation.blogPessoal.model;
 
-
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -16,30 +15,33 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
 @Entity
-@Table(name="postagem")
+@Table(name = "postagem")
 public class Postagem {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
+
 	@NotNull
 	@Size(min = 5, max = 100)
 	private String titulo;
-	
+
 	@NotNull
 	@Size(min = 10, max = 500)
 	private String texto;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date data = new java.sql.Date(System.currentTimeMillis());
-	
+
 	@ManyToOne
 	@JsonIgnoreProperties("postagem")
 	private Tema tema;
-	
+
+	@ManyToOne
+	@JsonIgnoreProperties("postagem")
+	private User usuario;
+
 	public long getId() {
 		return id;
 	}
@@ -71,7 +73,7 @@ public class Postagem {
 	public void setDate(Date date) {
 		this.data = date;
 	}
-	
+
 	public Tema getTema() {
 		return tema;
 	}
@@ -87,5 +89,13 @@ public class Postagem {
 	public void setData(Date data) {
 		this.data = data;
 	}
-	
+
+	public User getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(User usuario) {
+		this.usuario = usuario;
+	}
+
 }
