@@ -17,84 +17,65 @@ import org.springframework.web.server.ResponseStatusException;
 public class UsuarioService {
 
 	@Autowired
-	private UsuarioRepository usuarioRepository;
+	private UsuarioRepository repository;
 
+	BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	
 	public Optional<User> cadastrarUsuario(User usuario) {
 
-		if (usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent())
-			return Optional.empty();
+		if (repository.findByUsuario(usuario.getUsuario()).isPresent())
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário já existe.", null);
 
-		usuario.setSenha(criptografarSenha(usuario.getSenha()));
-
-		return Optional.of(usuarioRepository.save(usuario));
-
+		usuario.setSenha(criptografaSenha(usuario.getSenha()));
+		return Optional.of(repository.save(usuario));
 	}
 
 	public Optional<User> atualizarUsuario(User usuario) {
 
-		if (usuarioRepository.findById(usuario.getId()).isPresent()) {
-
-			Optional<User> buscaUsuario = usuarioRepository.findByUsuario(usuario.getUsuario());
+		if (repository.findById(usuario.getId()).isPresent()) {
+			Optional<User> buscaUsuario = repository.findByUsuario(usuario.getUsuario());
 
 			if (buscaUsuario.isPresent()) {
 				if (buscaUsuario.get().getId() != usuario.getId())
-					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O Usuário já existe!", null);
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário já existe.", null);
 			}
-
-			usuario.setSenha(criptografarSenha(usuario.getSenha()));
-
-			return Optional.of(usuarioRepository.save(usuario));
+			usuario.setSenha(criptografaSenha(usuario.getSenha()));
+			return Optional.of(repository.save(usuario));
 		}
-
-		return Optional.empty();
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado.", null);
 	}
 
-	public Optional<UserLogin> autenticarUsuario(Optional<UserLogin> usuarioLogin) {
+	public Optional<UserLogin> logar(Optional<UserLogin> usuarioLogin) {
 
-		Optional<User> usuario = usuarioRepository.findByUsuario(usuarioLogin.get().getUsuario());
-
+		Optional<User> usuario = repository.findByUsuario(usuarioLogin.get().getUsuario());
 		if (usuario.isPresent()) {
 			if (compararSenhas(usuarioLogin.get().getPassword(), usuario.get().getSenha())) {
 
-				usuarioLogin.get().setToken(gerarBasicToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getPassword()));
 				usuarioLogin.get().setId(usuario.get().getId());
 				usuarioLogin.get().setName(usuario.get().getNome());
-				usuarioLogin.get().setPassword(usuario.get().getSenha());
-				usuarioLogin.get().setUsuario(usuario.get().getUsuario());
 				usuarioLogin.get().setFoto(usuario.get().getFoto());
 				usuarioLogin.get().setTipo(usuario.get().getTipo());
-				
-				return usuarioLogin;
+				usuarioLogin.get().setToken(generatorBasicToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getPassword()));
+                usuarioLogin.get().setPassword(usuario.get().getSenha());
 
+				return usuarioLogin;
 			}
 		}
-
-		return Optional.empty();
-
+		throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos.", null);
 	}
 
-	private String criptografarSenha(String senha) {
-
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-		return encoder.encode(senha);
-
+	private String criptografaSenha(String senha) {
+		String senhaEncoder = encoder.encode(senha);
+		return senhaEncoder;
 	}
 
-	private boolean compararSenhas(String senhaDigitada, String senhaBanco) {
-
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-		return encoder.matches(senhaDigitada, senhaBanco);
-
+	private boolean compararSenhas(String senhaDigitada, String senhaDB) {
+		return encoder.matches(senhaDigitada, senhaDB);
 	}
 
-	private String gerarBasicToken(String email, String password) {
-
-		String tokenBase = email + ":" + password;
-		byte[] tokenBase64 = Base64.encodeBase64(tokenBase.getBytes(Charset.forName("US-ASCII")));
-		return "Basic " + new String(tokenBase64);
-
+	private String generatorBasicToken(String email, String password) {
+		String structure = email + ":" + password;
+		byte[] structureBase64 = Base64.encodeBase64(structure.getBytes(Charset.forName("US-ASCII")));
+		return "Basic " + new String(structureBase64);
 	}
-
 }
