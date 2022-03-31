@@ -14,6 +14,16 @@ public class UserLogin {
 	
 	private String tipo;
 	
+	private long id;
+	
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -62,11 +72,6 @@ public class UserLogin {
 		this.tipo = tipo;
 	}
 
-	public void setId(long id) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	
 
 }
