@@ -42,11 +42,6 @@ public class TemaController {
 		return ResponseEntity.ok(repository.findALLByDescricaoContainingIgnoreCase(descricao));
 	}
 	
-	@PostMapping
-	public ResponseEntity<Tema> postTema(@Valid @RequestBody Tema tema) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(tema));
-	}
-
 	
 	@GetMapping("/nome/{nome}")
 	public ResponseEntity<List<Tema>> getByName(@PathVariable String nome) {
